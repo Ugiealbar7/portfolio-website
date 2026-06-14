@@ -72,7 +72,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 2rem;display:
 .hero-img-ring::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(168,85,247,.3),rgba(236,72,153,.2),rgba(0,217,255,.3));border:2px solid rgba(168,85,247,.4);clip-path:polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);animation:pulse-frame 3s ease-in-out infinite;z-index:-1}
 @keyframes pulse-frame{0%,100%{opacity:.5}50%{opacity:1}}
 .hero-img-ring::after{content:'';position:absolute;inset:12px;border:1px solid rgba(0,217,255,.5);clip-path:polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);animation:rotate-frame 20s linear infinite;pointer-events:none}
-.hero-img{width:280px;height:340px;border-radius:0;object-fit:cover;border:3px solid transparent;background:linear-gradient(135deg,#1D7EFF,#A855F7,#EC4899) border-box;overflow:hidden;box-shadow:0 20px 60px rgba(168,85,247,.4),inset 0 0 60px rgba(168,85,247,.1);position:relative;animation:float-hero 6s ease-in-out infinite;clip-path:polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);transition:all .35s}
+.hero-img-ring.no-animation::after{animation:none}
+.hero-img{width:280px;height:340px;border-radius:0;object-fit:cover;border:3px solid transparent;background:linear-gradient(135deg,#1D7EFF,#A855F7,#EC4899) border-box;overflow:hidden;box-shadow:0 20px 60px rgba(168,85,247,.4),inset 0 0 60px rgba(168,85,247,.1);position:relative;animation:float-hero 6s ease-in-out infinite;clip-path:polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);transition:all .35s;cursor:pointer}
+.hero-img.no-animation{animation:none}
+.hero-img.no-animation::before{animation:none}
+.hero-img-ring.no-animation::before{animation:none}
+.hero-img-ring.no-animation::after{animation:none}
 .hero-img::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.1) 50%,transparent 70%);animation:shine 3s infinite}
 @keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 @keyframes float-hero{0%,100%{transform:translateY(0px) scale(1)}50%{transform:translateY(-25px) scale(1.02)}}

@@ -182,6 +182,22 @@ document.querySelectorAll('.tag').forEach(tag => {
   });
 });
 
+// ===== AVATAR CLICK ANIMATION TOGGLE =====
+const heroImg = document.querySelector('.hero-img');
+const heroImgRing = document.querySelector('.hero-img-ring');
+const heroImgGlow = document.querySelector('.hero-img-glow');
+const heroImgWrap = document.querySelector('.hero-img-wrap');
+
+if (heroImg) {
+  heroImg.addEventListener('click', function(e) {
+    e.stopPropagation();
+    heroImg.classList.toggle('no-animation');
+    heroImgRing.classList.toggle('no-animation');
+    if (heroImgGlow) heroImgGlow.style.animation = heroImg.classList.contains('no-animation') ? 'none' : 'pulse-glow 4s ease-in-out infinite';
+    if (heroImgWrap) heroImgWrap.style.pointerEvents = 'auto';
+  });
+}
+
 // ===== STATS COUNTER =====
 const animateCounter = (element, target, duration = 2000) => {
   let current = 0;
