@@ -294,3 +294,77 @@ contactForm.addEventListener("submit", async event => {
     buttonText.textContent = "Kirim pesan";
   }
 });
+
+/* ============================================================
+   PORTFOLIO FILTER TABS
+   ============================================================ */
+(function initPortfolioFilters() {
+  const btns   = document.querySelectorAll(".pf-btn");
+  const cards  = document.querySelectorAll(".pf-card");
+
+  if (!btns.length || !cards.length) return;
+
+  btns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const filter = btn.dataset.filter;
+
+      cards.forEach(card => {
+        const cat = card.dataset.cat || "";
+        if (filter === "all" || cat === filter) {
+          card.classList.remove("pf-hidden");
+        } else {
+          card.classList.add("pf-hidden");
+        }
+      });
+    });
+  });
+})();
+
+/* ============================================================
+   LIGHTBOX
+   ============================================================ */
+function openLightbox(src, title, desc, cat) {
+  const overlay = document.getElementById("lightboxOverlay");
+  const img     = document.getElementById("lightboxImg");
+  const titleEl = document.getElementById("lightboxTitle");
+  const descEl  = document.getElementById("lightboxDesc");
+  const catEl   = document.getElementById("lightboxCat");
+
+  img.src          = src;
+  img.alt          = title;
+  titleEl.textContent = title;
+  descEl.textContent  = desc;
+  catEl.textContent   = cat;
+
+  overlay.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeLightbox(event) {
+  // Close when clicking the overlay backdrop, not the inner box
+  if (event && event.target !== document.getElementById("lightboxOverlay") && !event.target.classList.contains("lightbox-close")) return;
+
+  const overlay = document.getElementById("lightboxOverlay");
+  overlay.classList.remove("active");
+  document.body.style.overflow = "";
+
+  // Reset image after animation
+  setTimeout(() => {
+    document.getElementById("lightboxImg").src = "";
+  }, 350);
+}
+
+// Close with Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const overlay = document.getElementById("lightboxOverlay");
+    if (overlay && overlay.classList.contains("active")) {
+      overlay.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  }
+});
+
