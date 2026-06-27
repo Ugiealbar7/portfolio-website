@@ -237,20 +237,10 @@ $$("[data-unavailable]").forEach(element => {
     showToast(element.dataset.unavailable);
   });
 });
-const cvLink = $("[data-cv-link]");
-cvLink.addEventListener("click", async event => {
-  event.preventDefault();
-  const href = cvLink.getAttribute("href");
-  try {
-    const response = await fetch(href, { method: "HEAD" });
-    if (!response.ok) throw new Error("missing");
-    const downloadLink = document.createElement("a");
-    downloadLink.href = href;
-    downloadLink.download = "";
-    downloadLink.click();
-  } catch {
-    showToast("File CV belum tersedia di folder assets.");
-  }
+const cvLink = document.querySelector("[data-cv-link]");
+
+cvLink.addEventListener("click", function () {
+    window.open("assets/CV_ATS_Muhamad_Ugi_Albar_IPK.pdf", "_blank");
 });
 
 // GitHub REST API
@@ -346,7 +336,7 @@ contactForm.addEventListener("submit", async event => {
     const subject = encodeURIComponent(data.get("subject"));
     const body = encodeURIComponent(`Nama: ${data.get("from_name")}\nEmail: ${data.get("reply_to")}\n\n${data.get("message")}`);
     showToast("EmailJS belum dikonfigurasi. Membuka aplikasi email sebagai fallback.");
-    setTimeout(() => { window.location.href = `mailto:ugi.albar@gmail.com?subject=${subject}&body=${body}`; }, 600);
+    setTimeout(() => { window.location.href = `mailto:mugieasus2233@gmail.com?subject=${subject}&body=${body}`; }, 600);
   } finally {
     button.classList.remove("sending");
     buttonText.textContent = "Kirim pesan";
