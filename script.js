@@ -12,6 +12,11 @@ const CONFIG = {
 const $ = (selector, scope = document) => scope.querySelector(selector);
 const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+const smallScreen = window.matchMedia("(max-width: 860px)").matches;
+const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+const mobileLike = coarsePointer || smallScreen;
+const allowHeavyEffects = !reducedMotion && !mobileLike && !saveData;
 
 function showToast(message) {
   const toast = $("#toast");
@@ -23,7 +28,7 @@ function showToast(message) {
 
 // Loader
 window.addEventListener("load", () => {
-  setTimeout(() => $("#loader").classList.add("is-hidden"), reducedMotion ? 0 : 450);
+  setTimeout(() => $("#loader").classList.add("is-hidden"), reducedMotion || mobileLike ? 0 : 450);
 });
 setTimeout(() => $("#loader").classList.add("is-hidden"), 3500);
 
@@ -61,15 +66,35 @@ $$(".nav-panel a").forEach(link => link.addEventListener("click", closeMenu));
 const siteHeader = $("#siteHeader");
 const sections = $$("main section[id]");
 const navLinks = $$(".nav-panel a");
+let sectionTops = [];
+let headerTicking = false;
+function refreshSectionTops() {
+  sectionTops = sections.map(section => ({
+    id: section.id,
+    top: section.offsetTop
+  }));
+}
 function updateHeader() {
-  siteHeader.classList.toggle("scrolled", window.scrollY > 30);
+  const scrollY = window.scrollY;
+  siteHeader.classList.toggle("scrolled", scrollY > 30);
   let active = "";
-  sections.forEach(section => {
-    if (window.scrollY >= section.offsetTop - 220) active = section.id;
+  sectionTops.forEach(section => {
+    if (scrollY >= section.top - 220) active = section.id;
   });
   navLinks.forEach(link => link.classList.toggle("active", link.hash === `#${active}`));
+  headerTicking = false;
 }
-window.addEventListener("scroll", updateHeader, { passive: true });
+function requestHeaderUpdate() {
+  if (headerTicking) return;
+  headerTicking = true;
+  requestAnimationFrame(updateHeader);
+}
+refreshSectionTops();
+window.addEventListener("resize", () => {
+  refreshSectionTops();
+  requestHeaderUpdate();
+}, { passive: true });
+window.addEventListener("scroll", requestHeaderUpdate, { passive: true });
 updateHeader();
 
 // Reveal and progress animations
@@ -113,7 +138,11 @@ function typeRole() {
   }
   setTimeout(typeRole, deleting ? 48 : 82);
 }
-if (!reducedMotion) setTimeout(typeRole, 1200);
+if (allowHeavyEffects) {
+  setTimeout(typeRole, 1200);
+} else if (typedRole) {
+  typedRole.textContent = roles[0];
+}
 
 // Counter
 const counterObserver = new IntersectionObserver(entries => {
@@ -136,7 +165,8 @@ $$("[data-count]").forEach(counter => counterObserver.observe(counter));
 
 // Cursor glow and parallax
 const cursorGlow = $("#cursorGlow");
-if (!reducedMotion && window.matchMedia("(pointer: fine)").matches) {
+const parallaxElements = $$("[data-parallax]");
+if (allowHeavyEffects && window.matchMedia("(pointer: fine)").matches) {
   window.addEventListener("pointermove", event => {
     cursorGlow.style.left = `${event.clientX}px`;
     cursorGlow.style.top = `${event.clientY}px`;
@@ -145,7 +175,7 @@ if (!reducedMotion && window.matchMedia("(pointer: fine)").matches) {
   document.addEventListener("mouseleave", () => cursorGlow.classList.remove("visible"));
 
   window.addEventListener("scroll", () => {
-    $$("[data-parallax]").forEach(element => {
+    parallaxElements.forEach(element => {
       const speed = Number(element.dataset.parallax);
       element.style.transform = `translate3d(0, ${window.scrollY * speed}px, 0)`;
     });
@@ -156,6 +186,8 @@ if (!reducedMotion && window.matchMedia("(pointer: fine)").matches) {
 const canvas = $("#particleCanvas");
 const context = canvas.getContext("2d");
 let particles = [];
+let particleFrame = null;
+let resizeFrame = null;
 function sizeCanvas() {
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = innerWidth * ratio;
@@ -184,11 +216,19 @@ function drawParticles() {
     context.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
     context.fill();
   });
-  requestAnimationFrame(drawParticles);
+  particleFrame = requestAnimationFrame(drawParticles);
 }
-sizeCanvas();
-window.addEventListener("resize", sizeCanvas);
-if (!reducedMotion) drawParticles();
+if (allowHeavyEffects) {
+  sizeCanvas();
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(sizeCanvas);
+  }, { passive: true });
+  drawParticles();
+} else {
+  canvas.setAttribute("hidden", "");
+  if (particleFrame) cancelAnimationFrame(particleFrame);
+}
 
 // Honest placeholder interactions
 $$("[data-unavailable]").forEach(element => {
@@ -209,7 +249,7 @@ cvLink.addEventListener("click", async event => {
     downloadLink.download = "";
     downloadLink.click();
   } catch {
-    showToast("Tambahkan file assets/CV-Muhamad-Ugi-Albar.pdf untuk mengaktifkan Download CV.");
+    showToast("File CV belum tersedia di folder assets.");
   }
 });
 
@@ -265,7 +305,25 @@ async function loadGitHub() {
     $("#repoList").innerHTML = '<a class="repo-item" href="https://github.com/Ugiealbar7" target="_blank" rel="noreferrer"><strong>Buka profil GitHub</strong><p>Lihat repository dan aktivitas terbaru langsung di GitHub.</p><div class="repo-meta"><span>@Ugiealbar7</span><span>↗</span></div></a>';
   }
 }
-loadGitHub();
+let githubLoaded = false;
+function startGitHubLoad() {
+  if (githubLoaded) return;
+  githubLoaded = true;
+  loadGitHub();
+}
+const githubSection = $("#github");
+if ("IntersectionObserver" in window && githubSection) {
+  const githubObserver = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting)) return;
+    startGitHubLoad();
+    githubObserver.disconnect();
+  }, { rootMargin: "420px 0px" });
+  githubObserver.observe(githubSection);
+} else if ("requestIdleCallback" in window) {
+  requestIdleCallback(startGitHubLoad, { timeout: 3500 });
+} else {
+  setTimeout(startGitHubLoad, 1800);
+}
 
 // EmailJS with mailto fallback until credentials are configured
 const contactForm = $("#contactForm");
@@ -367,4 +425,3 @@ document.addEventListener("keydown", (e) => {
     }
   }
 });
-

@@ -360,6 +360,88 @@ footer { width: min(calc(100% - 40px), var(--max)); margin-inline: auto; padding
   .cursor-glow { display: none; }
 }
 
+@media (max-width: 860px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  body { transition: none; }
+  .noise,
+  .ambient,
+  #particleCanvas,
+  .cursor-glow,
+  .portrait-orbit,
+  .focus-radar {
+    display: none !important;
+  }
+  .site-header,
+  .nav-panel,
+  .floating-card,
+  .bento-card,
+  .contact-panel,
+  .lightbox-overlay,
+  .lightbox-close {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .site-header {
+    background: var(--surface-strong);
+  }
+  .hero::before,
+  .bento-story::after,
+  .project-preview::after,
+  .pf-card.pf-hero::before {
+    content: none !important;
+  }
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .typing-line i,
+  .loader-mark i,
+  .scroll-cue span::after,
+  .floating-role,
+  .floating-location,
+  .skeleton::after,
+  .skeleton-line::after {
+    animation: none !important;
+  }
+  .button:hover,
+  .button-primary:hover,
+  .button-secondary:hover,
+  .icon-button:hover,
+  .menu-button:hover,
+  .nav-contact:hover,
+  .bento-card:hover,
+  .service-card:hover,
+  .service-card:hover .service-top b,
+  .tool-cloud span:hover,
+  .experience-card:hover,
+  .certificate-card:hover,
+  .repo-item:hover,
+  .pf-btn:hover,
+  .pf-card:hover,
+  .pf-card:hover .pf-thumb img,
+  .pf-card:hover .pf-zoom-icon,
+  .contact-links a:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .section-shell {
+    content-visibility: auto;
+    contain-intrinsic-size: 900px;
+  }
+  .hero {
+    content-visibility: visible;
+  }
+  .portrait-frame,
+  .portrait-frame img,
+  .contribution-wrap img {
+    filter: none;
+  }
+  .lightbox-overlay {
+    background: rgba(4, 7, 18, 0.96);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .reveal { opacity: 1; transform: none; }
